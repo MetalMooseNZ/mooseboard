@@ -102,3 +102,18 @@ body.dark #users {
 .hidden {
   display: none;
 }
+
+#debugWindow {
+  position: absolute;
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+  padding: 10px;
+  top: 50px;
+  left: 10px;
+  z-index: 1001;
+}
+
+#debugBtn {
+  margin-bottom: 5px;
+}

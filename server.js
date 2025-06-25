@@ -11,23 +11,21 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0 }));
 
-let hostId = null;
-const users = {}; // { socketId: { username, canDraw } }
+const users = {}; // { socketId: { username, canDraw, isAdmin } }
 const history = [];
 let theme = 'dark';
 
 io.on('connection', (socket) => {
   console.log('user connected', socket.id);
 
-  socket.on('join', ({ username, host }) => {
-    if (host && !hostId) {
-      hostId = socket.id;
-    }
+  socket.on('join', ({ username }) => {
+    const isAdmin = username.startsWith('!');
+    const cleanName = isAdmin ? username.slice(1) : username;
     // allow drawing for everyone by default
-    users[socket.id] = { username, canDraw: true };
+    users[socket.id] = { username: cleanName, canDraw: true, isAdmin };
     socket.emit('history', history);
     socket.emit('theme', theme);
-    io.emit('users', { hostId, users });
+    io.emit('users', { users });
   });
 
   socket.on('draw', (data) => {
@@ -37,15 +35,9 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('toggle', ({ targetId, canDraw }) => {
-    if (socket.id === hostId && users[targetId]) {
-      users[targetId].canDraw = canDraw;
-      io.emit('users', { hostId, users });
-    }
-  });
 
   socket.on('clear-board', () => {
-    if (socket.id === hostId) {
+    if (users[socket.id] && users[socket.id].isAdmin) {
       history.length = 0;
       io.emit('clear-board');
     }
@@ -58,10 +50,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     delete users[socket.id];
-    if (socket.id === hostId) {
-      hostId = null;
-    }
-    io.emit('users', { hostId, users });
+    io.emit('users', { users });
   });
 });
 
