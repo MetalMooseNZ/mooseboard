@@ -8,6 +8,8 @@ A lightweight, browser-based whiteboard for up to **6 users**. No database requi
 - Host can enable/disable drawing for each user
 - Right-click menu for toggling dark mode
 - Host can clear the board via the right-click menu
+- Clear board option visible for everyone but only the host can activate it
+- Crisp drawings rendered using SVG
 - Whiteboard centered and uses 80% of the window
 - Zoom with mouse wheel up to 180%, never smaller than 100%
 
