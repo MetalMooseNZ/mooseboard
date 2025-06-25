@@ -47,9 +47,26 @@ board.addEventListener('mousemove', (e) => {
 
 function getPos(e) {
   const rect = board.getBoundingClientRect();
+  const aspect = BOARD_WIDTH / BOARD_HEIGHT;
+  const rectAspect = rect.width / rect.height;
+  let offsetX = 0;
+  let offsetY = 0;
+  let drawWidth = rect.width;
+  let drawHeight = rect.height;
+
+  if (rectAspect > aspect) {
+    drawHeight = rect.height;
+    drawWidth = rect.height * aspect;
+    offsetX = (rect.width - drawWidth) / 2;
+  } else if (rectAspect < aspect) {
+    drawWidth = rect.width;
+    drawHeight = rect.width / aspect;
+    offsetY = (rect.height - drawHeight) / 2;
+  }
+
   return {
-    x: (e.clientX - rect.left) * (BOARD_WIDTH / rect.width),
-    y: (e.clientY - rect.top) * (BOARD_HEIGHT / rect.height)
+    x: (e.clientX - rect.left - offsetX) * (BOARD_WIDTH / drawWidth),
+    y: (e.clientY - rect.top - offsetY) * (BOARD_HEIGHT / drawHeight)
   };
 }
 
