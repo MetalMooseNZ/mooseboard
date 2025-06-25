@@ -37,7 +37,7 @@ board.addEventListener('mousedown', (e) => {
 });
 
 board.addEventListener('mouseup', () => { drawing = false; });
-board.addEventListener('mouseout', () => { drawing = false; });
+board.addEventListener('mouseleave', () => { drawing = false; });
 board.addEventListener('mousemove', (e) => {
   if (!drawing) return;
   const pos = getPos(e);
