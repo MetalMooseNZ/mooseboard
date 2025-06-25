@@ -145,6 +145,12 @@ const contextMenu = document.getElementById('contextMenu');
 const toggleTheme = document.getElementById('toggleTheme');
 const clearBoardBtn = document.getElementById('clearBoard');
 let currentHostId = null;
+let currentTheme = 'dark';
+
+socket.on('theme', (th) => {
+  currentTheme = th;
+  document.body.classList.toggle('light', th === 'light');
+});
 
 board.addEventListener('contextmenu', (e) => {
   e.preventDefault();
@@ -158,7 +164,8 @@ document.addEventListener('click', () => {
 });
 
 toggleTheme.addEventListener('click', () => {
-  document.body.classList.toggle('light');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  socket.emit('toggle-theme', newTheme);
   contextMenu.classList.add('hidden');
 });
 
@@ -170,7 +177,7 @@ clearBoardBtn.addEventListener('click', () => {
 });
 
 socket.on('clear-board', () => {
-  board.innerHTML = '';
+  board.replaceChildren();
 });
 
 board.addEventListener('wheel', (e) => {
@@ -180,6 +187,6 @@ board.addEventListener('wheel', (e) => {
   const offsetY = e.clientY - rect.top;
   board.style.transformOrigin = `${offsetX}px ${offsetY}px`;
   const delta = e.deltaY < 0 ? 0.1 : -0.1;
-  scale = Math.min(1.8, Math.max(1, scale + delta));
+  scale = Math.min(1.3, Math.max(1, scale + delta));
   updateTransform();
 });

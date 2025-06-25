@@ -6,12 +6,12 @@ A lightweight, browser-based whiteboard for up to **6 users**. No database requi
 - Prompt for username on connect
 - Host or join a session
 - Host can enable/disable drawing for each user
-- Right-click menu for toggling dark mode
+- Right-click menu for toggling dark mode, synced across users
 - Host can clear the board via the right-click menu
 - Clear board option visible for everyone but only the host can activate it
 - Crisp drawings rendered using SVG
 - Whiteboard fills the entire window
-- Zoom with mouse wheel up to 180%, never smaller than 100%
+- Zoom with mouse wheel up to 130%, never smaller than 100%
 
 ## Quick Start
 ```bash
