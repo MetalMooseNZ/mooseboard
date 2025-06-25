@@ -84,13 +84,28 @@ socket.on('users', ({ hostId, users }) => {
   });
 });
 
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('light');
+const contextMenu = document.getElementById('contextMenu');
+const toggleTheme = document.getElementById('toggleTheme');
+
+board.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  contextMenu.style.left = `${e.pageX}px`;
+  contextMenu.style.top = `${e.pageY}px`;
+  contextMenu.classList.remove('hidden');
 });
 
-const zoom = document.getElementById('zoom');
-zoom.addEventListener('input', () => {
-  scale = zoom.value / 100;
+document.addEventListener('click', () => {
+  contextMenu.classList.add('hidden');
+});
+
+toggleTheme.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  contextMenu.classList.add('hidden');
+});
+
+board.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 0.1 : -0.1;
+  scale = Math.min(1.8, Math.max(1, scale + delta));
   board.style.transform = `scale(${scale})`;
 });

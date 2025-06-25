@@ -7,9 +7,14 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="dark">
-<div id="controls">
-  <button id="themeToggle">Toggle Theme</button>
-  <label>Zoom <input type="range" id="zoom" min="100" max="180" value="100"></label>
+<div id="contextMenu" class="hidden">
+  <ul>
+    <li id="settingsItem">Settings ▸
+      <ul id="settingsSubMenu" class="hidden">
+        <li id="toggleTheme">Toggle Theme</li>
+      </ul>
+    </li>
+  </ul>
 </div>
 <div id="layout">
   <div id="users"></div>

@@ -6,9 +6,9 @@ A lightweight, browser-based whiteboard for up to **6 users**. No database requi
 - Prompt for username on connect
 - Host or join a session
 - Host can enable/disable drawing for each user
-- Dark mode (default) and light mode toggle
+- Dark mode (default) and light mode toggle via right-click menu
 - Whiteboard centered and uses 80% of the window
-- Zoom in up to 180%, never smaller than 100%
+- Zoom with mouse wheel up to 180%, never smaller than 100%
 
 ## Quick Start
 ```bash
