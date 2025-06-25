@@ -14,9 +14,19 @@ const BOARD_WIDTH = 800;
 const BOARD_HEIGHT = 600;
 board.setAttribute('viewBox', `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
 let drawing = false;
-let canDraw = isHost;
+let panning = false;
+let canDraw = true;
 let scale = 1;
+let panX = 0;
+let panY = 0;
 let prev = {x:0,y:0};
+let panStart = {x:0,y:0};
+
+function updateTransform() {
+  board.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+}
+
+updateTransform();
 
 function drawLine(x0, y0, x1, y1, emit) {
   const line = document.createElementNS(drawingNS, 'line');
@@ -31,18 +41,36 @@ function drawLine(x0, y0, x1, y1, emit) {
 }
 
 board.addEventListener('mousedown', (e) => {
-  if (!canDraw) return;
-  drawing = true;
-  prev = getPos(e);
+  if (e.button === 0) {
+    if (!canDraw) return;
+    drawing = true;
+    prev = getPos(e);
+  } else if (e.button === 1) {
+    panning = true;
+    panStart = { x: e.clientX, y: e.clientY };
+    e.preventDefault();
+  }
 });
 
-board.addEventListener('mouseup', () => { drawing = false; });
-board.addEventListener('mouseleave', () => { drawing = false; });
+board.addEventListener('mouseup', (e) => {
+  if (e.button === 0) {
+    drawing = false;
+  } else if (e.button === 1) {
+    panning = false;
+  }
+});
+board.addEventListener('mouseleave', () => { drawing = false; panning = false; });
 board.addEventListener('mousemove', (e) => {
-  if (!drawing) return;
-  const pos = getPos(e);
-  drawLine(prev.x, prev.y, pos.x, pos.y, true);
-  prev = pos;
+  if (drawing) {
+    const pos = getPos(e);
+    drawLine(prev.x, prev.y, pos.x, pos.y, true);
+    prev = pos;
+  } else if (panning) {
+    panX += e.clientX - panStart.x;
+    panY += e.clientY - panStart.y;
+    panStart = { x: e.clientX, y: e.clientY };
+    updateTransform();
+  }
 });
 
 function getPos(e) {
@@ -149,5 +177,5 @@ board.addEventListener('wheel', (e) => {
   e.preventDefault();
   const delta = e.deltaY < 0 ? 0.1 : -0.1;
   scale = Math.min(1.8, Math.max(1, scale + delta));
-  board.style.transform = `scale(${scale})`;
+  updateTransform();
 });

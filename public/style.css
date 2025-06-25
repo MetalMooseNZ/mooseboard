@@ -15,6 +15,9 @@ body.light {
   width: 200px;
   padding: 10px;
   overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  background: inherit;
 }
 #board {
   margin: 0 auto;
@@ -23,6 +26,8 @@ body.light {
   transform-origin: 50% 50%;
   background: #fff;
   border: 1px solid #ccc;
+  position: relative;
+  z-index: 0;
 }
 body.light #board {
   background: #fff;
