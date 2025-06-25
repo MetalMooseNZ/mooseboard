@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MooseBoard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+<div id="controls">
+  <button id="themeToggle">Toggle Theme</button>
+  <label>Zoom <input type="range" id="zoom" min="100" max="180" value="100"></label>
+</div>
+<div id="layout">
+  <div id="users"></div>
+  <canvas id="board" width="800" height="600"></canvas>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="client.js"></script>
+</body>
+</html>
