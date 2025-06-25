@@ -14,6 +14,7 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0 }));
 let hostId = null;
 const users = {}; // { socketId: { username, canDraw } }
 const history = [];
+let theme = 'dark';
 
 io.on('connection', (socket) => {
   console.log('user connected', socket.id);
@@ -25,6 +26,7 @@ io.on('connection', (socket) => {
     // allow drawing for everyone by default
     users[socket.id] = { username, canDraw: true };
     socket.emit('history', history);
+    socket.emit('theme', theme);
     io.emit('users', { hostId, users });
   });
 
@@ -47,6 +49,11 @@ io.on('connection', (socket) => {
       history.length = 0;
       io.emit('clear-board');
     }
+  });
+
+  socket.on('toggle-theme', (newTheme) => {
+    theme = newTheme === 'light' ? 'light' : 'dark';
+    io.emit('theme', theme);
   });
 
   socket.on('disconnect', () => {
