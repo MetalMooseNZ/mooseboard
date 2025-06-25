@@ -164,6 +164,7 @@ toggleTheme.addEventListener('click', () => {
 
 clearBoardBtn.addEventListener('click', () => {
   if (socket.id === currentHostId) {
+    board.innerHTML = '';
     socket.emit('clear-board');
   }
   contextMenu.classList.add('hidden');
@@ -175,6 +176,10 @@ socket.on('clear-board', () => {
 
 board.addEventListener('wheel', (e) => {
   e.preventDefault();
+  const rect = board.getBoundingClientRect();
+  const offsetX = e.clientX - rect.left;
+  const offsetY = e.clientY - rect.top;
+  board.style.transformOrigin = `${offsetX}px ${offsetY}px`;
   const delta = e.deltaY < 0 ? 0.1 : -0.1;
   scale = Math.min(1.8, Math.max(1, scale + delta));
   updateTransform();
