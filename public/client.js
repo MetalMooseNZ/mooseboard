@@ -164,7 +164,6 @@ toggleTheme.addEventListener('click', () => {
 
 clearBoardBtn.addEventListener('click', () => {
   if (socket.id === currentHostId) {
-    board.innerHTML = '';
     socket.emit('clear-board');
   }
   contextMenu.classList.add('hidden');
