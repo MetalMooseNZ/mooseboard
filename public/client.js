@@ -57,6 +57,7 @@ socket.on('history', (hist) => {
 });
 
 socket.on('users', ({ hostId, users }) => {
+  currentHostId = hostId;
   usersDiv.innerHTML = '';
   Object.entries(users).forEach(([id, u]) => {
     const div = document.createElement('div');
@@ -82,10 +83,17 @@ socket.on('users', ({ hostId, users }) => {
     div.appendChild(label);
     usersDiv.appendChild(div);
   });
+  if (socket.id === hostId) {
+    clearBoardBtn.classList.remove('hidden');
+  } else {
+    clearBoardBtn.classList.add('hidden');
+  }
 });
 
 const contextMenu = document.getElementById('contextMenu');
 const toggleTheme = document.getElementById('toggleTheme');
+const clearBoardBtn = document.getElementById('clearBoard');
+let currentHostId = null;
 
 board.addEventListener('contextmenu', (e) => {
   e.preventDefault();
@@ -101,6 +109,15 @@ document.addEventListener('click', () => {
 toggleTheme.addEventListener('click', () => {
   document.body.classList.toggle('light');
   contextMenu.classList.add('hidden');
+});
+
+clearBoardBtn.addEventListener('click', () => {
+  socket.emit('clear-board');
+  contextMenu.classList.add('hidden');
+});
+
+socket.on('clear-board', () => {
+  ctx.clearRect(0, 0, board.width, board.height);
 });
 
 board.addEventListener('wheel', (e) => {

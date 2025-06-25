@@ -41,6 +41,13 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('clear-board', () => {
+    if (socket.id === hostId) {
+      history.length = 0;
+      io.emit('clear-board');
+    }
+  });
+
   socket.on('disconnect', () => {
     delete users[socket.id];
     if (socket.id === hostId) {
