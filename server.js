@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0 }));
 
-const users = {}; // { socketId: { username, canDraw, isAdmin } }
+const users = {}; // { socketId: { username } }
 const history = [];
 let theme = 'dark';
 
@@ -19,17 +19,15 @@ io.on('connection', (socket) => {
   console.log('user connected', socket.id);
 
   socket.on('join', ({ username }) => {
-    const isAdmin = username.startsWith('!');
-    const cleanName = isAdmin ? username.slice(1) : username;
-    // allow drawing for everyone by default
-    users[socket.id] = { username: cleanName, canDraw: true, isAdmin };
+    const cleanName = username.startsWith('!') ? username.slice(1) : username;
+    users[socket.id] = { username: cleanName };
     socket.emit('history', history);
     socket.emit('theme', theme);
     io.emit('users', { users });
   });
 
   socket.on('draw', (data) => {
-    if (users[socket.id] && users[socket.id].canDraw) {
+    if (users[socket.id]) {
       history.push(data);
       socket.broadcast.emit('draw', data);
     }
@@ -37,7 +35,7 @@ io.on('connection', (socket) => {
 
 
   socket.on('clear-board', () => {
-    if (users[socket.id] && users[socket.id].isAdmin) {
+    if (users[socket.id]) {
       history.length = 0;
       io.emit('clear-board');
     }

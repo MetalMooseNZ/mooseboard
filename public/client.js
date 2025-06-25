@@ -17,8 +17,6 @@ const BOARD_HEIGHT = 600;
 board.setAttribute('viewBox', `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
 let drawing = false;
 let panning = false;
-let canDraw = true;
-let isAdmin = false;
 let scale = 1;
 let maxZoom = 1.3;
 let panX = 0;
@@ -62,7 +60,6 @@ function drawLine(x0, y0, x1, y1, emit) {
 
 board.addEventListener('mousedown', (e) => {
   if (e.button === 0) {
-    if (!canDraw) return;
     drawing = true;
     prev = getPos(e);
   } else if (e.button === 1) {
@@ -128,26 +125,17 @@ socket.on('history', (hist) => {
 
 socket.on('users', ({ users }) => {
   usersDiv.innerHTML = '';
-  Object.entries(users).forEach(([id, u]) => {
+  Object.values(users).forEach((u) => {
     const div = document.createElement('div');
     div.className = 'user';
     const label = document.createElement('label');
     label.textContent = u.username;
-    if (id === socket.id) {
-      canDraw = u.canDraw;
-      isAdmin = u.isAdmin;
-    }
     div.appendChild(label);
     usersDiv.appendChild(div);
   });
   clearBoardBtn.classList.remove('hidden');
-  if (isAdmin) {
-    clearBoardBtn.classList.remove('disabled');
-    debugBtn.classList.remove('hidden');
-  } else {
-    clearBoardBtn.classList.add('disabled');
-    debugBtn.classList.add('hidden');
-  }
+  clearBoardBtn.classList.remove('disabled');
+  debugBtn.classList.remove('hidden');
 });
 
 const contextMenu = document.getElementById('contextMenu');
@@ -178,9 +166,7 @@ toggleTheme.addEventListener('click', () => {
 });
 
 clearBoardBtn.addEventListener('click', () => {
-  if (isAdmin) {
-    socket.emit('clear-board');
-  }
+  socket.emit('clear-board');
   contextMenu.classList.add('hidden');
 });
 
