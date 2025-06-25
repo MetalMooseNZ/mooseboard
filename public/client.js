@@ -1,13 +1,15 @@
 const socket = io();
-let username = '';
-while (!username) {
-  username = prompt('Enter username');
+let rawUsername = '';
+while (!rawUsername) {
+  rawUsername = prompt('Enter username');
 }
-const isHost = confirm('Host a session? OK = Host, Cancel = Join');
-
-socket.emit('join', { username, host: isHost });
+socket.emit('join', { username: rawUsername });
 
 const usersDiv = document.getElementById('users');
+const debugBtn = document.getElementById('debugBtn');
+const debugWindow = document.getElementById('debugWindow');
+const maxZoomInput = document.getElementById('maxZoomInput');
+const closeDebug = document.getElementById('closeDebug');
 const board = document.getElementById('board');
 const drawingNS = 'http://www.w3.org/2000/svg';
 const BOARD_WIDTH = 800;
@@ -16,11 +18,29 @@ board.setAttribute('viewBox', `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
 let drawing = false;
 let panning = false;
 let canDraw = true;
+let isAdmin = false;
 let scale = 1;
+let maxZoom = 1.3;
 let panX = 0;
 let panY = 0;
 let prev = {x:0,y:0};
 let panStart = {x:0,y:0};
+
+debugBtn.addEventListener('click', () => {
+  maxZoomInput.value = maxZoom;
+  debugWindow.classList.remove('hidden');
+});
+
+closeDebug.addEventListener('click', () => {
+  debugWindow.classList.add('hidden');
+});
+
+maxZoomInput.addEventListener('change', () => {
+  const val = parseFloat(maxZoomInput.value);
+  if (!isNaN(val) && val >= 1) {
+    maxZoom = val;
+  }
+});
 
 function updateTransform() {
   board.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
@@ -106,8 +126,7 @@ socket.on('history', (hist) => {
   hist.forEach((d) => drawLine(d.x0, d.y0, d.x1, d.y1, false));
 });
 
-socket.on('users', ({ hostId, users }) => {
-  currentHostId = hostId;
+socket.on('users', ({ users }) => {
   usersDiv.innerHTML = '';
   Object.entries(users).forEach(([id, u]) => {
     const div = document.createElement('div');
@@ -116,35 +135,24 @@ socket.on('users', ({ hostId, users }) => {
     label.textContent = u.username;
     if (id === socket.id) {
       canDraw = u.canDraw;
-    }
-    if (socket.id === hostId && id !== hostId) {
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = u.canDraw;
-      checkbox.addEventListener('change', () => {
-        socket.emit('toggle', { targetId: id, canDraw: checkbox.checked });
-      });
-      div.appendChild(checkbox);
-    } else {
-      const indicator = document.createElement('span');
-      indicator.textContent = u.canDraw ? '🖊️' : '🚫';
-      div.appendChild(indicator);
+      isAdmin = u.isAdmin;
     }
     div.appendChild(label);
     usersDiv.appendChild(div);
   });
   clearBoardBtn.classList.remove('hidden');
-  if (socket.id === hostId) {
+  if (isAdmin) {
     clearBoardBtn.classList.remove('disabled');
+    debugBtn.classList.remove('hidden');
   } else {
     clearBoardBtn.classList.add('disabled');
+    debugBtn.classList.add('hidden');
   }
 });
 
 const contextMenu = document.getElementById('contextMenu');
 const toggleTheme = document.getElementById('toggleTheme');
 const clearBoardBtn = document.getElementById('clearBoard');
-let currentHostId = null;
 let currentTheme = 'dark';
 
 socket.on('theme', (th) => {
@@ -170,7 +178,7 @@ toggleTheme.addEventListener('click', () => {
 });
 
 clearBoardBtn.addEventListener('click', () => {
-  if (socket.id === currentHostId) {
+  if (isAdmin) {
     socket.emit('clear-board');
   }
   contextMenu.classList.add('hidden');
@@ -187,6 +195,6 @@ board.addEventListener('wheel', (e) => {
   const offsetY = e.clientY - rect.top;
   board.style.transformOrigin = `${offsetX}px ${offsetY}px`;
   const delta = e.deltaY < 0 ? 0.1 : -0.1;
-  scale = Math.min(1.3, Math.max(1, scale + delta));
+  scale = Math.min(maxZoom, Math.max(1, scale + delta));
   updateTransform();
 });

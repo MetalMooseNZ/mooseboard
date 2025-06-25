@@ -4,14 +4,13 @@ A lightweight, browser-based whiteboard for up to **6 users**. No database requi
 
 ## Features
 - Prompt for username on connect
-- Host or join a session
-- Host can enable/disable drawing for each user
+- Users whose name begins with `!` gain admin powers
+- Admins can clear the board via the right-click menu
 - Right-click menu for toggling dark mode, synced across users
-- Host can clear the board via the right-click menu
-- Clear board option visible for everyone but only the host can activate it
+- Debug menu for admins to adjust maximum zoom
 - Crisp drawings rendered using SVG
 - Whiteboard fills the entire window
-- Zoom with mouse wheel up to 130%, never smaller than 100%
+- Zoom with mouse wheel (default limit 130%, adjustable by admins)
 
 ## Quick Start
 ```bash
