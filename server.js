@@ -22,7 +22,8 @@ io.on('connection', (socket) => {
     if (host && !hostId) {
       hostId = socket.id;
     }
-    users[socket.id] = { username, canDraw: host || false };
+    // allow drawing for everyone by default
+    users[socket.id] = { username, canDraw: true };
     socket.emit('history', history);
     io.emit('users', { hostId, users });
   });
@@ -52,10 +53,6 @@ io.on('connection', (socket) => {
     delete users[socket.id];
     if (socket.id === hostId) {
       hostId = null;
-      // reset canDraw for all
-      for (const id in users) {
-        users[id].canDraw = false;
-      }
     }
     io.emit('users', { hostId, users });
   });
