@@ -9,20 +9,25 @@ socket.emit('join', { username, host: isHost });
 
 const usersDiv = document.getElementById('users');
 const board = document.getElementById('board');
-const ctx = board.getContext('2d');
+const drawingNS = 'http://www.w3.org/2000/svg';
+const BOARD_WIDTH = 800;
+const BOARD_HEIGHT = 600;
+board.setAttribute('viewBox', `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
 let drawing = false;
 let canDraw = isHost;
 let scale = 1;
 let prev = {x:0,y:0};
 
 function drawLine(x0, y0, x1, y1, emit) {
-  ctx.beginPath();
-  ctx.moveTo(x0, y0);
-  ctx.lineTo(x1, y1);
-  ctx.stroke();
-  ctx.closePath();
-  if (!emit) return;
-  socket.emit('draw', { x0, y0, x1, y1 });
+  const line = document.createElementNS(drawingNS, 'line');
+  line.setAttribute('x1', x0);
+  line.setAttribute('y1', y0);
+  line.setAttribute('x2', x1);
+  line.setAttribute('y2', y1);
+  board.appendChild(line);
+  if (emit) {
+    socket.emit('draw', { x0, y0, x1, y1 });
+  }
 }
 
 board.addEventListener('mousedown', (e) => {
@@ -43,8 +48,8 @@ board.addEventListener('mousemove', (e) => {
 function getPos(e) {
   const rect = board.getBoundingClientRect();
   return {
-    x: (e.clientX - rect.left) / scale,
-    y: (e.clientY - rect.top) / scale
+    x: (e.clientX - rect.left) * (BOARD_WIDTH / rect.width),
+    y: (e.clientY - rect.top) * (BOARD_HEIGHT / rect.height)
   };
 }
 
@@ -83,10 +88,11 @@ socket.on('users', ({ hostId, users }) => {
     div.appendChild(label);
     usersDiv.appendChild(div);
   });
+  clearBoardBtn.classList.remove('hidden');
   if (socket.id === hostId) {
-    clearBoardBtn.classList.remove('hidden');
+    clearBoardBtn.classList.remove('disabled');
   } else {
-    clearBoardBtn.classList.add('hidden');
+    clearBoardBtn.classList.add('disabled');
   }
 });
 
@@ -112,12 +118,14 @@ toggleTheme.addEventListener('click', () => {
 });
 
 clearBoardBtn.addEventListener('click', () => {
-  socket.emit('clear-board');
+  if (socket.id === currentHostId) {
+    socket.emit('clear-board');
+  }
   contextMenu.classList.add('hidden');
 });
 
 socket.on('clear-board', () => {
-  ctx.clearRect(0, 0, board.width, board.height);
+  board.innerHTML = '';
 });
 
 board.addEventListener('wheel', (e) => {
