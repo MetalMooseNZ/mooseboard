@@ -63,16 +63,6 @@ body.light #board {
   background: #555;
 }
 
-#contextMenu ul ul {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  display: none;
-}
-
-#contextMenu li:hover > ul {
-  display: block;
-}
 
 .hidden {
   display: none;
