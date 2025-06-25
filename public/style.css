@@ -8,10 +8,6 @@ body.light {
   background: #fff;
   color: #000;
 }
-#controls {
-  padding: 10px;
-  text-align: center;
-}
 #layout {
   display: flex;
 }
@@ -24,6 +20,7 @@ body.light {
   margin: 0 auto;
   width: 80vw;
   height: 80vh;
+  transform-origin: 0 0;
   background: #fff;
   border: 1px solid #ccc;
 }
@@ -36,4 +33,47 @@ body.light #board {
 }
 .user label {
   margin-left: 5px;
+}
+
+#contextMenu {
+  position: absolute;
+  background: #333;
+  border: 1px solid #555;
+  color: #eee;
+  z-index: 1000;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+#contextMenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#contextMenu li {
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#contextMenu li:hover {
+  background: #555;
+}
+
+#contextMenu ul ul {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  display: none;
+}
+
+#contextMenu li:hover > ul {
+  display: block;
+}
+
+.hidden {
+  display: none;
 }
