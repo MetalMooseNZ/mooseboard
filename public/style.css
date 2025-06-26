@@ -1,119 +1,58 @@
 body {
   margin: 0;
   font-family: sans-serif;
-  background: #111;
-  color: #eee;
+  background: #2c2f38;
+  color: #fff;
+  overflow: hidden;
 }
 
-body.light {
-  background: #fff;
-  color: #000;
-}
-
-#layout {
-  position: relative;
-}
-
-#users {
-  width: 200px;
-  padding: 10px;
-  overflow-y: auto;
-  position: absolute;
+#userList {
+  position: fixed;
   top: 10px;
   left: 10px;
-  z-index: 10;
-  background: inherit;
-}
-
-#board {
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-  transform-origin: 50% 50%;
-  background: #fff;
-  border: 1px solid #ccc;
-  position: absolute;
-  top: 0;
-  left: 0;
-  color: #000;
-  z-index: 0;
-}
-
-body.light #board {
-  background: #fff;
-  color: #000;
-}
-
-body.dark #board {
-  background: #2c2f38;
-  color: #7f8187;
-}
-
-body.dark #users {
-  background: #47575e;
-}
-#board line {
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-.user {
-  display: flex;
-  align-items: center;
-}
-.user label {
-  margin-left: 5px;
-}
-
-#contextMenu {
-  position: absolute;
-  background: #333;
-  border: 1px solid #555;
-  color: #eee;
-  z-index: 1000;
-  padding: 0;
-  margin: 0;
-  list-style: none;
+  background: rgba(0,0,0,0.4);
+  padding: 6px 8px;
+  border-radius: 4px;
   font-size: 14px;
 }
 
-#contextMenu ul {
+#userList div {
+  margin-bottom: 2px;
+}
+
+#board {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  cursor: crosshair;
+}
+
+#board line {
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+#contextMenu {
+  position: fixed;
+  background: #444;
+  color: #fff;
   list-style: none;
+  padding: 4px 0;
   margin: 0;
-  padding: 0;
+  border: 1px solid #666;
+  border-radius: 3px;
+  z-index: 1000;
 }
 
 #contextMenu li {
-  padding: 5px 10px;
+  padding: 4px 12px;
   cursor: pointer;
-  white-space: nowrap;
-}
-
-#contextMenu li.disabled {
-  color: #777;
-  pointer-events: none;
 }
 
 #contextMenu li:hover {
   background: #555;
 }
 
-
 .hidden {
   display: none;
-}
-
-#debugWindow {
-  position: absolute;
-  background: #333;
-  color: #eee;
-  border: 1px solid #555;
-  padding: 10px;
-  top: 50px;
-  left: 10px;
-  z-index: 1001;
-}
-
-#debugBtn {
-  margin-bottom: 5px;
 }
