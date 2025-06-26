@@ -13,6 +13,11 @@ board.setAttribute('viewBox', `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
 const userList = document.getElementById('userList');
 const contextMenu = document.getElementById('contextMenu');
 const clearBoardBtn = document.getElementById('clearBoard');
+const pasteImageBtn = document.getElementById('pasteImage');
+
+const images = new Map();
+let activeImage = null;
+let dragOffset = { x: 0, y: 0 };
 
 let myColor = '#fff';
 let drawing = false;
@@ -36,6 +41,57 @@ function drawLine(x0, y0, x1, y1, color) {
   line.setAttribute('y2', y1);
   line.setAttribute('stroke', color);
   board.appendChild(line);
+}
+
+function createImageElement(obj) {
+  const g = document.createElementNS(drawingNS, 'g');
+  g.classList.add('image-group');
+  g.dataset.id = obj.id;
+
+  const img = document.createElementNS(drawingNS, 'image');
+  img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', obj.dataUrl);
+  img.setAttribute('x', obj.x);
+  img.setAttribute('y', obj.y);
+  img.setAttribute('width', obj.width);
+  img.setAttribute('height', obj.height);
+
+  const rect = document.createElementNS(drawingNS, 'rect');
+  rect.setAttribute('x', obj.x);
+  rect.setAttribute('y', obj.y);
+  rect.setAttribute('width', obj.width);
+  rect.setAttribute('height', obj.height);
+  rect.setAttribute('fill', 'none');
+  rect.setAttribute('stroke', obj.color);
+  rect.setAttribute('stroke-width', 2);
+
+  g.appendChild(img);
+  g.appendChild(rect);
+  board.appendChild(g);
+
+  g.addEventListener('mousedown', (e) => {
+    if (e.button === 0) {
+      activeImage = g;
+      const pos = getPos(e);
+      dragOffset = { x: pos.x - obj.x, y: pos.y - obj.y };
+      e.stopPropagation();
+    }
+  });
+
+  g.addEventListener('wheel', (e) => {
+    if (activeImage === g) {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      obj.width *= factor;
+      obj.height *= factor;
+      img.setAttribute('width', obj.width);
+      img.setAttribute('height', obj.height);
+      rect.setAttribute('width', obj.width);
+      rect.setAttribute('height', obj.height);
+      socket.emit('update-image', obj);
+    }
+  });
+
+  images.set(obj.id, { g, img, rect, obj });
 }
 
 function getPos(e) {
@@ -64,6 +120,9 @@ function getPos(e) {
 }
 
 board.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.image-group')) {
+    return;
+  }
   if (e.button === 0) {
     drawing = true;
     prev = getPos(e);
@@ -75,16 +134,30 @@ board.addEventListener('mousedown', (e) => {
 });
 
 board.addEventListener('mouseup', (e) => {
-  if (e.button === 0) {
+  if (activeImage && e.button === 0) {
+    activeImage = null;
+  } else if (e.button === 0) {
     drawing = false;
   } else if (e.button === 1) {
     panning = false;
   }
 });
 
-board.addEventListener('mouseleave', () => { drawing = false; panning = false; });
+board.addEventListener('mouseleave', () => { drawing = false; panning = false; activeImage = null; });
 
 board.addEventListener('mousemove', (e) => {
+  if (activeImage) {
+    const pos = getPos(e);
+    const { img, rect, obj } = images.get(activeImage.dataset.id);
+    obj.x = pos.x - dragOffset.x;
+    obj.y = pos.y - dragOffset.y;
+    img.setAttribute('x', obj.x);
+    img.setAttribute('y', obj.y);
+    rect.setAttribute('x', obj.x);
+    rect.setAttribute('y', obj.y);
+    socket.emit('update-image', obj);
+    return;
+  }
   if (drawing) {
     const pos = getPos(e);
     socket.emit('draw', { x0: prev.x, y0: prev.y, x1: pos.x, y1: pos.y });
@@ -99,6 +172,7 @@ board.addEventListener('mousemove', (e) => {
 });
 
 board.addEventListener('wheel', (e) => {
+  if (activeImage) return;
   e.preventDefault();
   const rect = board.getBoundingClientRect();
   const offsetX = e.clientX - rect.left;
@@ -120,22 +194,85 @@ document.addEventListener('click', () => {
   contextMenu.classList.add('hidden');
 });
 
+pasteImageBtn.addEventListener('click', async () => {
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const type = item.types.find(t => t.startsWith('image/'));
+      if (type) {
+        const blob = await item.getType(type);
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+          const obj = {
+            id,
+            x: BOARD_WIDTH / 2 - 75,
+            y: BOARD_HEIGHT / 2 - 75,
+            width: 150,
+            height: 150,
+            dataUrl,
+            color: myColor
+          };
+          createImageElement(obj);
+          socket.emit('add-image', obj);
+        };
+        reader.readAsDataURL(blob);
+        break;
+      }
+    }
+  } catch (err) {
+    console.error('Paste failed', err);
+  }
+  contextMenu.classList.add('hidden');
+});
+
 clearBoardBtn.addEventListener('click', () => {
-  socket.emit('clear-board');
+  if (confirm('Clear board for everyone?')) {
+    socket.emit('clear-board');
+  }
   contextMenu.classList.add('hidden');
 });
 
 socket.on('init', ({ color, history }) => {
   myColor = color;
-  history.forEach((l) => drawLine(l.x0, l.y0, l.x1, l.y1, l.color));
+  history.forEach((item) => {
+    if (item.type === 'line') {
+      drawLine(item.x0, item.y0, item.x1, item.y1, item.color);
+    } else if (item.type === 'image') {
+      createImageElement(item);
+    }
+  });
 });
 
 socket.on('draw', (d) => {
   drawLine(d.x0, d.y0, d.x1, d.y1, d.color);
 });
 
+socket.on('add-image', (d) => {
+  createImageElement(d);
+});
+
+socket.on('update-image', (d) => {
+  const entry = images.get(d.id);
+  if (entry) {
+    entry.obj.x = d.x;
+    entry.obj.y = d.y;
+    entry.obj.width = d.width;
+    entry.obj.height = d.height;
+    entry.img.setAttribute('x', d.x);
+    entry.img.setAttribute('y', d.y);
+    entry.img.setAttribute('width', d.width);
+    entry.img.setAttribute('height', d.height);
+    entry.rect.setAttribute('x', d.x);
+    entry.rect.setAttribute('y', d.y);
+    entry.rect.setAttribute('width', d.width);
+    entry.rect.setAttribute('height', d.height);
+  }
+});
 socket.on('clear-board', () => {
   board.replaceChildren();
+  images.clear();
 });
 
 socket.on('users', (list) => {

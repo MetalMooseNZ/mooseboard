@@ -29,9 +29,29 @@ io.on('connection', (socket) => {
   socket.on('draw', (data) => {
     const user = users[socket.id];
     if (!user) return;
-    const line = { ...data, color: user.color };
+    const line = { type: 'line', ...data, color: user.color };
     history.push(line);
     socket.broadcast.emit('draw', line);
+  });
+
+  socket.on('add-image', (obj) => {
+    const user = users[socket.id];
+    if (!user) return;
+    const img = { type: 'image', ...obj, color: user.color };
+    history.push(img);
+    socket.broadcast.emit('add-image', img);
+  });
+
+  socket.on('update-image', (obj) => {
+    if (!users[socket.id]) return;
+    const item = history.find((h) => h.type === 'image' && h.id === obj.id);
+    if (item) {
+      item.x = obj.x;
+      item.y = obj.y;
+      item.width = obj.width;
+      item.height = obj.height;
+    }
+    socket.broadcast.emit('update-image', obj);
   });
 
   socket.on('clear-board', () => {
