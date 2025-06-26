@@ -68,8 +68,8 @@ A browser-based, real-time, multi-user whiteboard app hosted via Docker. Each us
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/your-username/multiuser-whiteboard.git
-cd multiuser-whiteboard
+git clone https://github.com/MetalMooseNZ/mooseboard.git
+cd mooseboard
 ```
 
 2. Build and run the Docker container:
