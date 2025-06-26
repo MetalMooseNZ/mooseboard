@@ -75,16 +75,15 @@ cd mooseboard
 2. Build and run the Docker container:
 Run the Docker container:
 
-bash
-Copy
-Edit
-docker build -t whiteboard-app .
-docker run -p 3000:3000 whiteboard-app
+
+
+
+docker build -t mooseboard .
+docker run -p 3000:3000 mooseboard
 Open your browser and go to:
 
 arduino
-Copy
-Edit
+
 http://localhost:3000
 
 
