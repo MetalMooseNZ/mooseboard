@@ -1,7 +1,7 @@
 {
   "name": "mooseboard",
   "version": "1.0.0",
-  "description": "A lightweight, browser-based whiteboard app for up to **6 users** to connect, draw, and collaborate in real-time.",
+  "description": "Simple multi-user whiteboard with real-time drawing",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

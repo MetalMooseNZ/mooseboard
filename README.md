@@ -70,28 +70,29 @@ A browser-based, real-time, multi-user whiteboard app hosted via Docker. Each us
 ```bash
 git clone https://github.com/your-username/multiuser-whiteboard.git
 cd multiuser-whiteboard
-Run the Docker container:
+```
 
-bash
-Copy
-Edit
-docker build -t whiteboard-app .
-docker run -p 3000:3000 whiteboard-app
-Open your browser and go to:
+2. Build and run the Docker container:
 
-arduino
-Copy
-Edit
+```bash
+docker-compose up --build
+```
+
+3. Open your browser and go to:
+
+```
 http://localhost:3000
-🧹 Context Menu Actions
-Clear Board: Removes all drawings for all users (host command)
+```
 
-🧪 Roadmap (Optional Features)
-Add Light Mode toggle
+---
 
-Host/join named sessions
+## 🧹 Context Menu Actions
+- **Clear Board**: Removes all drawings for all users (host command)
 
-User inactivity timeout handling
+---
 
-Save board snapshot as image
-
+## 🧪 Roadmap (Optional Features)
+- Add Light Mode toggle
+- Host/join named sessions
+- User inactivity timeout handling
+- Save board snapshot as image
