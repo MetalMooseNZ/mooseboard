@@ -13,7 +13,7 @@ board.setAttribute('viewBox', `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
 const userList = document.getElementById('userList');
 const contextMenu = document.getElementById('contextMenu');
 const clearBoardBtn = document.getElementById('clearBoard');
-const pasteImageBtn = document.getElementById('pasteImage');
+const addImageBtn = document.getElementById('addImage');
 
 const images = new Map();
 let activeImage = null;
@@ -194,7 +194,7 @@ document.addEventListener('click', () => {
   contextMenu.classList.add('hidden');
 });
 
-pasteImageBtn.addEventListener('click', async () => {
+addImageBtn.addEventListener('click', async () => {
   try {
     const items = await navigator.clipboard.read();
     for (const item of items) {
