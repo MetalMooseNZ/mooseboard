@@ -56,3 +56,11 @@ body {
 .hidden {
   display: none;
 }
+
+.image-group {
+  cursor: move;
+}
+
+.image-group rect {
+  pointer-events: none;
+}
